@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         // append() cần CharSequence, dùng ?: "" để tránh null
                         if (!partialResult.isNullOrEmpty()) {
-                            tvOutput.append(partialResult as CharSequence)
+                            tvOutput.append(partialResult)
                         }
                         if (done) tvOutput.append("\n\n[Done]")
                     }
