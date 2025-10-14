@@ -11,8 +11,9 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
-import com.google.mediapipe.tasks.genai.llminference.ProgressListener
 import com.google.mediapipe.tasks.core.ErrorListener
+import com.google.mediapipe.tasks.core.OutputHandler.ProgressListener
+
 import java.io.File
 import java.io.FileOutputStream
 
@@ -95,14 +96,13 @@ class MainActivity : AppCompatActivity() {
                 )
                 .setErrorListener(
                     ErrorListener { e: RuntimeException ->
-                        runOnUiThread {
-                            tvOutput.append("\n[Error] ${e.message}")
-                        }
+                        runOnUiThread { tvOutput.append("\n[Error] ${e.message}") }
                     }
                 )
                 .build()
 
             llm = LlmInference.createFromOptions(this, opts)
+
 
         }
 
