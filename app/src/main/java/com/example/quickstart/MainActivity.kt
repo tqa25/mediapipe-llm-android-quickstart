@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
-import com.google.mediapipe.tasks.genai.llminference.LlmInferenceOptions
 import java.io.File
 import java.io.FileOutputStream
 
@@ -77,13 +76,14 @@ class MainActivity : AppCompatActivity() {
     private fun runInference(path: String, prompt: String) {
         tvOutput.text = "Đang khởi tạo model...\n"
         if (llm == null) {
-            val opts = LlmInferenceOptions.builder()
+            val opts = LlmInference.LlmInferenceOptions.builder()
                 .setModelPath(path)
                 .setMaxTopK(64)
-                .setResultListener { partial, done ->
+                .setResultListener { partialResult: String?, done: Boolean ->
                     runOnUiThread {
-                        if (partial != null && partial.isNotEmpty()) {
-                            tvOutput.append(partial)
+                        // append() cần CharSequence, dùng ?: "" để tránh null
+                        if (!partialResult.isNullOrEmpty()) {
+                            tvOutput.append(partialResult as CharSequence)
                         }
                         if (done) tvOutput.append("\n\n[Done]")
                     }
@@ -96,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         // Streaming
         llm?.generateResponseAsync(prompt)
     }
+
 
     private fun copyToInternal(uri: Uri): String? {
         return try {
