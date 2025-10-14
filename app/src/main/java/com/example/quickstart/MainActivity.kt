@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
+import com.google.mediapipe.tasks.genai.llminference.ProgressListener
 import java.io.File
 import java.io.FileOutputStream
 
@@ -79,17 +80,19 @@ class MainActivity : AppCompatActivity() {
             val opts = LlmInference.LlmInferenceOptions.builder()
                 .setModelPath(path)
                 .setMaxTopK(64)
-                .setResultListener { partialResult: String?, done: Boolean ->
-                    runOnUiThread {
-                        // append() cần CharSequence, dùng ?: "" để tránh null
-                        if (!partialResult.isNullOrEmpty()) {
-                            tvOutput.append(partialResult)
+                .setResultListener(
+                    ProgressListener<String> { partial: String?, done: Boolean ->
+                        runOnUiThread {
+                            if (!partial.isNullOrEmpty()) {
+                                tvOutput.append(partial) // String là CharSequence
+                            }
+                            if (done) tvOutput.append("\n\n[Done]")
                         }
-                        if (done) tvOutput.append("\n\n[Done]")
                     }
-                }
+                )
                 .build()
             llm = LlmInference.createFromOptions(this, opts)
+
         }
 
         tvOutput.append("Đang generate...\n")
@@ -125,4 +128,9 @@ class MainActivity : AppCompatActivity() {
         llm?.close()
         llm = null
     }
+
+    .setErrorListener { e ->
+        runOnUiThread { tvOutput.append("\n[Error] ${e.message}") }
+    }
+
 }
