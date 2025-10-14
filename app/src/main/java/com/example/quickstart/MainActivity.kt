@@ -84,15 +84,20 @@ class MainActivity : AppCompatActivity() {
                     ProgressListener<String> { partial: String?, done: Boolean ->
                         runOnUiThread {
                             if (!partial.isNullOrEmpty()) {
-                                tvOutput.append(partial) // String là CharSequence
+                                tvOutput.append(partial)  // String là CharSequence
                             }
-                            if (done) tvOutput.append("\n\n[Done]")
+                            if (done) {
+                                tvOutput.append("\n\n[Done]")
+                            }
                         }
                     }
                 )
+                .setErrorListener { e ->
+                    runOnUiThread { tvOutput.append("\n[Error] ${e.message}") }
+                }
                 .build()
-            llm = LlmInference.createFromOptions(this, opts)
 
+            llm = LlmInference.createFromOptions(this, opts)
         }
 
         tvOutput.append("Đang generate...\n")
