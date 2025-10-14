@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
 import com.google.mediapipe.tasks.genai.llminference.ProgressListener
+import com.google.mediapipe.tasks.core.ErrorListener
 import java.io.File
 import java.io.FileOutputStream
 
@@ -84,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                     ProgressListener<String> { partial: String?, done: Boolean ->
                         runOnUiThread {
                             if (!partial.isNullOrEmpty()) {
-                                tvOutput.append(partial)  // String là CharSequence
+                                tvOutput.append(partial) // String là CharSequence
                             }
                             if (done) {
                                 tvOutput.append("\n\n[Done]")
@@ -92,12 +93,17 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 )
-                .setErrorListener { e ->
-                    runOnUiThread { tvOutput.append("\n[Error] ${e.message}") }
-                }
+                .setErrorListener(
+                    ErrorListener { e: RuntimeException ->
+                        runOnUiThread {
+                            tvOutput.append("\n[Error] ${e.message}")
+                        }
+                    }
+                )
                 .build()
 
             llm = LlmInference.createFromOptions(this, opts)
+
         }
 
         tvOutput.append("Đang generate...\n")
