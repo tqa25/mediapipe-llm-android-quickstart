@@ -140,8 +140,4 @@ class MainActivity : AppCompatActivity() {
         llm = null
     }
 
-    .setErrorListener { e ->
-        runOnUiThread { tvOutput.append("\n[Error] ${e.message}") }
-    }
-
 }
