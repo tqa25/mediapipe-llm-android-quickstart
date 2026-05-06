@@ -1,0 +1,38 @@
+name: Build Box APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["**"]
+    paths:
+      - ".github/workflows/build-box-apk.yml"
+      - "scripts/build_box_apk.sh"
+
+jobs:
+  build-box:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Clone Box repository
+        run: git clone --depth 1 https://github.com/jegly/Box.git /tmp/Box
+
+      - name: Build APK from scaffolded Android wrapper app
+        run: bash scripts/build_box_apk.sh /tmp/Box /tmp/box-apk
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: box-apk
+          path: /tmp/box-apk/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
